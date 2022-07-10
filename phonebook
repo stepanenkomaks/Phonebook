@@ -1,0 +1,267 @@
+package phonebook;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.*;
+
+public class Main {
+    public static int linearSearch(ArrayList<String> phonebook) {
+        int count = 0;
+        int kol = 0;
+        while (kol < 10000) {
+            for (String s : phonebook) {
+                String[] person = s.split(" ");
+                if (person[0].matches(".*")) {
+                    count++;
+                }
+            }
+            kol++;
+        }
+        count /= 10000;
+        return count;
+    }
+
+    public static ArrayList<String> bubbleSort(ArrayList<String> phonebook) {
+        int n = phonebook.size();
+        String temp;
+        for (int j = 0; j < n; j++) {
+            for (int i = j + 1; i < n; i++) {
+                if (phonebook.get(i).compareTo(phonebook.get(j)) < 0) {
+                    temp = phonebook.get(j);
+                    phonebook.set(j, phonebook.get(i));
+                    phonebook.set(i, temp);
+                }
+            }
+        }
+        return phonebook;
+    }
+
+    public static int jumpSearch(ArrayList<String> phonebook) {
+        int count = 0;
+        String[] helpArray = new String[phonebook.size()];
+        helpArray = phonebook.toArray(helpArray);
+        int n = helpArray.length;
+        int step = (int)Math.floor(Math.sqrt(n));
+        int prev = 0;
+        String x;
+        for (int i = 0; i < n; i++) {
+            x = phonebook.get(i);
+            while (helpArray[Math.min(step, n) - 1].compareTo(x) < 0) {
+                prev = step;
+                step += (int) Math.floor(Math.sqrt(n));
+                /*if (prev >= n)
+                return -1;*/
+            }
+            while (helpArray[prev].compareTo(x) < 0) {
+                prev++;
+                /*if (prev == Math.min(step, n))
+                    return -1;*/
+            }
+            if (helpArray[prev].equals(x)) {
+                count++;
+            }
+            //return -1;
+        }
+        return count;
+    }
+
+    public static ArrayList<String> quickSort(ArrayList<String> arrayList) {
+        int n = arrayList.size();
+        ArrayList<String> helper = new ArrayList<>();
+        if (n == 1) {
+            helper.add(arrayList.get(0));
+            return helper;
+        }
+        if (n == 0) {
+            return helper;
+        }
+        String str = arrayList.get(n - 1);
+        ArrayList<String> lessStr = new ArrayList<>();
+        ArrayList<String> greaterStr = new ArrayList<>();
+        for (String s:
+                arrayList) {
+            if (s.compareTo(str) < 0) {
+                lessStr.add(s);
+            } else if (s.compareTo(str) > 0){
+                greaterStr.add(s);
+            }
+        }
+        helper.addAll(quickSort(lessStr));
+        helper.add(str);
+        helper.addAll(quickSort(greaterStr));
+        return helper;
+    }
+
+    public static int binarySearchHelper(List<String> phonebook, String s) {
+        int n = phonebook.size();
+        String first = phonebook.get(0);
+        String middle = phonebook.get((n - 1) / 2);
+        String last = phonebook.get(n - 1);
+        if (s.compareTo(first) < 0) {
+            return 0;
+        } else if (s.compareTo(last) > 0) {
+            return 0;
+        } else if (s.compareTo(middle) == 0) {
+            return 1;
+        } else if (s.compareTo(middle) < 0) {
+            return binarySearchHelper(phonebook.subList(0, (n - 1) / 2), s);
+        } else if (s.compareTo(middle) > 0) {
+            return binarySearchHelper(phonebook.subList((n - 1) / 2 + 1, n), s);
+        }
+        return 0;
+    }
+
+    public static int binarySearch (ArrayList<String> phonebook, ArrayList<String> arrayList) {
+        int count = 0;
+        int n = phonebook.size();
+        for (int i = 0; i < n; i++) {
+            String s = phonebook.get(i);
+            if(binarySearchHelper(arrayList, s) > 0) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public static Hashtable<String, String> createTable(File file) {
+        Hashtable<String, String> hashtable = new Hashtable<>();
+        try {
+            Scanner scanner = new Scanner(file);
+            while (scanner.hasNextLine()) {
+                String[] words = scanner.nextLine().split(" ");
+                if (words.length == 3) {
+                    hashtable.put(words[1] + " " + words[2], words[0]);
+                } else if (words.length == 2) {
+                    hashtable.put(words[1], words[0]);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found");
+        }
+        return hashtable;
+    }
+
+    public static String findTable(Hashtable<String, String> hashtable, String hash) {
+        if (hashtable.containsKey(hash)) {
+            return hashtable.get(hash);
+        }
+        return null;
+    }
+
+    public static int count(ArrayList<String> phonebook, Hashtable<String, String> hashtable) {
+        int count = 0;
+        for (String s:
+             phonebook) {
+            if (findTable(hashtable, s) != null) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public static void main(String[] args) {
+        System.out.println("Start searching (linear search)...");
+        long startTime = System.currentTimeMillis();
+        String filePath1 = "/Users/mac/Desktop/find.txt";
+        String filePath2 = "/Users/mac/Desktop/directory.txt";
+        File file1 = new File(filePath1);
+        File file2 = new File(filePath2);
+        ArrayList<String> phonebook = new ArrayList<>();
+        try {
+            Scanner scanner = new Scanner(file1);
+            while (scanner.hasNextLine()) {
+                phonebook.add(scanner.nextLine());
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found");
+        }
+
+        ArrayList<String> phonebookList = new ArrayList<>();
+        try {
+            Scanner scanner = new Scanner(file2);
+            while (scanner.hasNextLine()) {
+                String[] words = scanner.nextLine().split(" ");
+                if (words.length == 3) {
+                    phonebookList.add(words[1] + " " + words[2]);
+                } else if (words.length == 2) {
+                    phonebookList.add(words[1]);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found");
+        }
+
+        int count = linearSearch(phonebook);
+        long linearSearchTime = System.currentTimeMillis();
+        int linearSearchMinutes = (int) ((linearSearchTime - startTime) / 60000);
+        int linearSearchSeconds = (int) (((linearSearchTime - startTime) - linearSearchMinutes * 60000L) / 1000);
+        int linearSearchMilliseconds = (int) ((linearSearchTime - startTime) % 1000);
+        System.out.printf("Found %d / %d entries. Time taken: %d min. %d sec. %d ms.", count, phonebook.size(), linearSearchMinutes, linearSearchSeconds, linearSearchMilliseconds);
+        System.out.println("\n\nStart searching (bubble sort + jump search)...");
+
+        ArrayList<String> arrayList = bubbleSort(phonebook);
+        long bubbleSortTime = System.currentTimeMillis();
+        int bubbleSortTimeMinutes = (int) ((bubbleSortTime - linearSearchTime) / 60000);
+        int bubbleSortTimeSeconds = (int) (((bubbleSortTime - linearSearchTime) - bubbleSortTimeMinutes * 60000L) / 1000);
+        int bubbleSortTimeMilliseconds = (int) ((bubbleSortTime - linearSearchTime) % 1000);
+
+        count = jumpSearch(phonebook);
+        long jumpSearchTime = System.currentTimeMillis();
+        int jumpSearchMinutes = (int) ((jumpSearchTime - bubbleSortTime) / 60000);
+        int jumpSearchSeconds = (int) (((jumpSearchTime - bubbleSortTime) - jumpSearchMinutes * 60000L) / 1000);
+        int jumpSearchMilliseconds = (int) ((jumpSearchTime - bubbleSortTime) % 1000);
+
+        long finishTime = jumpSearchTime - linearSearchTime;
+        int minutes = (int) (finishTime / 60000);
+        int seconds = (int) ((finishTime - minutes * 60000L) / 1000);
+        int milliseconds = (int) (finishTime % 1000);
+
+        System.out.printf("Found %d / %d entries. Time taken: %d min. %d sec. %d ms.", count, phonebook.size(), minutes, seconds, milliseconds);
+        System.out.printf("\nSorting time: %d min. %d sec. %d ms.", jumpSearchMinutes, jumpSearchSeconds, jumpSearchMilliseconds);
+        System.out.printf("\nSearching time: %d min. %d sec. %d ms.", bubbleSortTimeMinutes, bubbleSortTimeSeconds, bubbleSortTimeMilliseconds);
+        System.out.println("\n\nStart searching (quick sort + binary search)...");
+
+        ArrayList<String> arrayList1 = quickSort(phonebookList);
+        long quickSortTime = System.currentTimeMillis();
+        int quickSortTimeMinutes = (int) ((quickSortTime - jumpSearchTime) / 60000);
+        int quickSortTimeSeconds = (int) (((quickSortTime - jumpSearchTime) - quickSortTimeMinutes * 60000L) / 1000);
+        int quickSortTimeMilliseconds = (int) ((quickSortTime - jumpSearchTime) % 1000);
+
+        count = binarySearch(phonebook, arrayList1);
+        long binarySearchTime = System.currentTimeMillis();
+        int binarySearchTimeMinutes = (int) ((binarySearchTime - quickSortTime) / 60000);
+        int binarySearchTimeSeconds = (int) (((binarySearchTime - quickSortTime) - binarySearchTimeMinutes * 60000L) / 1000);
+        int binarySearchTimeMilliseconds = (int) ((binarySearchTime - quickSortTime) % 1000);
+
+        long finishTime2 = binarySearchTime - jumpSearchTime;
+        int minutes2 = (int) (finishTime2 / 60000);
+        int seconds2 = (int) ((finishTime2 - minutes2 * 60000L) / 1000);
+        int milliseconds2 = (int) (finishTime2 % 1000);
+
+        System.out.printf("Found %d / %d entries. Time taken: %d min. %d sec. %d ms.", count, phonebook.size(), minutes2, seconds2, milliseconds2);
+        System.out.printf("\nSorting time: %d min. %d sec. %d ms.", quickSortTimeMinutes, quickSortTimeSeconds, quickSortTimeMilliseconds);
+        System.out.printf("\nSearching time: %d min. %d sec. %d ms.", binarySearchTimeMinutes, binarySearchTimeSeconds, binarySearchTimeMilliseconds);
+        System.out.println("\n\nStart searching (hash table)...");
+
+        Hashtable<String, String> hashtable = createTable(file2);
+        long hashtableTime = System.currentTimeMillis();
+        int hashtableTimeMinutes = (int) ((hashtableTime - binarySearchTime) / 60000);
+        int hashtableTimeSeconds = (int) (((hashtableTime - binarySearchTime) - hashtableTimeMinutes * 60000L) / 1000);
+        int hashtableTimeMilliseconds = (int) ((hashtableTime - binarySearchTime) % 1000);
+
+        count = count(phonebook, hashtable);
+        long countTime = System.currentTimeMillis();
+        int countTimeMinutes = (int) ((countTime - hashtableTime) / 60000);
+        int countTimeSeconds = (int) (((countTime - hashtableTime) - countTimeMinutes * 60000L) / 1000);
+        int countTimeMilliseconds = (int) ((countTime - hashtableTime) % 1000);
+
+        long finishTime3 = countTime - binarySearchTime;
+        int minutes3 = (int) (finishTime3 / 60000);
+        int seconds3 = (int) ((finishTime3 - minutes3 * 60000L) / 1000);
+        int milliseconds3 = (int) (finishTime3 % 1000);
+
+        System.out.printf("Found %d / %d entries. Time taken: %d min. %d sec. %d ms.", count, phonebook.size(), minutes3, seconds3, milliseconds3);
+        System.out.printf("\nCreating time: %d min. %d sec. %d ms.", hashtableTimeMinutes, hashtableTimeSeconds, hashtableTimeMilliseconds);
+        System.out.printf("\nSearching time: %d min. %d sec. %d ms.", countTimeMinutes, countTimeSeconds, countTimeMilliseconds);
+    }
+}
